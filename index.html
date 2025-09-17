@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>لعبة القناص النخبة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero__content">
+          <h1>لعبة القناص النخبة</h1>
+          <p>
+            ساحة معركة مستقبلية تتطلب رد فعل سريعاً وقراراً حاسماً في لحظة.
+            تفادى موجات الأعداء، حافظ على صحتك، وحقق أعلى نتيجة ممكنة في تجربة
+            إطلاق نار مفعمة بالأدرينالين.
+          </p>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="hud" aria-label="واجهة بيانات اللاعب">
+          <div class="stat">
+            <span class="stat__label">النتيجة</span>
+            <span class="stat__value ltr" id="score">0</span>
+          </div>
+          <div class="stat stat--health">
+            <span class="stat__label">الصحة</span>
+            <div class="health-bar" role="meter" aria-valuemin="0" aria-valuemax="100">
+              <div class="health-bar__fill" id="healthFill"></div>
+            </div>
+          </div>
+          <div class="stat">
+            <span class="stat__label">المستوى</span>
+            <span class="stat__value ltr" id="wave">1</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">الوقت</span>
+            <span class="stat__value ltr" id="timer">00:00</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">أفضل نتيجة</span>
+            <span class="stat__value ltr" id="bestScore">0</span>
+          </div>
+        </section>
+
+        <div class="canvas-wrapper">
+          <canvas
+            id="gameCanvas"
+            width="960"
+            height="600"
+            aria-label="ساحة القتال"
+            role="img"
+            tabindex="0"
+          ></canvas>
+        </div>
+
+        <section class="instructions">
+          <h2>كيفية اللعب</h2>
+          <ul>
+            <li>تحكم بالحركة باستخدام مفاتيح WASD أو الأسهم.</li>
+            <li>وجّه السلاح بالفأرة أو اللمس، واضغط لإطلاق النار المستمر.</li>
+            <li>تجنب الاصطدام بالأعداء واحرص على جمع النقاط بسرعة لإطلاق موجات أصعب.</li>
+            <li>حقق أفضل نتيجة ممكنة وشاركها مع أصدقائك!</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>صُممت بكل حب لعشاق ألعاب الأكشن.</p>
+      </footer>
+    </div>
+
+    <div class="modal" id="startModal" role="dialog" aria-modal="true">
+      <div class="modal__content">
+        <h2>جاهز للمهمة؟</h2>
+        <p>
+          اضغط على زر <strong>ابدأ المهمة</strong> لبدء الجولة. تحرك بسرعة، صوب
+          بدقة، واجعل الأعداء يخشون مهاراتك الاحترافية.
+        </p>
+        <button type="button" class="button" id="startButton">ابدأ المهمة</button>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="gameOverModal" role="alertdialog" aria-modal="true">
+      <div class="modal__content">
+        <h2>تمت إصابتك!</h2>
+        <p>نتيجتك النهائية: <span class="ltr" id="finalScore">0</span></p>
+        <p class="modal__hint">اضغط على زر المحاولة الجديدة للعودة إلى القتال.</p>
+        <button type="button" class="button" id="restartButton">محاولة جديدة</button>
+      </div>
+    </div>
+
+    <script src="scripts.js"></script>
+  </body>
+</html>
