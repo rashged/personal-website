@@ -217,6 +217,11 @@ textarea[readonly] {
   background: rgba(148, 163, 184, 0.15);
 }
 
+.field input[readonly] {
+  background: rgba(148, 163, 184, 0.15);
+  cursor: text;
+}
+
 .section-header {
   display: flex;
   align-items: center;

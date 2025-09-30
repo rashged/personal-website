@@ -337,27 +337,67 @@ const buildSharePayload = () => {
   };
 };
 
-const generateShareCode = () => {
-  const payload = buildSharePayload();
-  const code = encodeBase64(JSON.stringify(payload));
+const buildShareLink = (code) => {
+  if (!code) return "";
+  try {
+    const url = new URL("share.html", window.location.href);
+    url.searchParams.set("code", code);
+    return url.toString();
+  } catch (error) {
+    return `share.html?code=${encodeURIComponent(code)}`;
+  }
+};
+
+const setShareOutputs = (code) => {
   const output = document.getElementById("shareCodeOutput");
   if (output) {
     output.value = code;
   }
+  const linkOutput = document.getElementById("shareLinkOutput");
+  if (linkOutput) {
+    linkOutput.value = buildShareLink(code);
+  }
+};
+
+const generateShareCode = () => {
+  const payload = buildSharePayload();
+  const code = encodeBase64(JSON.stringify(payload));
+  setShareOutputs(code);
   toast("تم إنشاء الكود. انسخه وشاركه.");
   return { payload, code };
 };
 
-const copyShareCode = () => {
-  const textarea = document.getElementById("shareCodeOutput");
-  if (!textarea?.value) return toast("لا يوجد كود لنسخه.");
+const copyTextValue = (element, emptyMessage) => {
+  if (!element || !element.value) {
+    toast(emptyMessage);
+    return;
+  }
   if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(textarea.value).then(() => toast("تم النسخ."));
+    navigator.clipboard
+      .writeText(element.value)
+      .then(() => toast("تم النسخ."))
+      .catch(() => {
+        element.select();
+        document.execCommand("copy");
+        toast("تم النسخ.");
+      });
   } else {
-    textarea.select();
+    element.select();
     document.execCommand("copy");
     toast("تم النسخ.");
   }
+};
+
+const copyShareCode = () => {
+  copyTextValue(document.getElementById("shareCodeOutput"), "لا يوجد كود لنسخه.");
+};
+
+const copyShareLink = () => {
+  copyTextValue(document.getElementById("shareLinkOutput"), "لا يوجد رابط لنسخه.");
+};
+
+const copyPublicLink = () => {
+  copyTextValue(document.getElementById("publicLinkOutput"), "لا يوجد رابط لنسخه.");
 };
 
 const parseShareCode = (code) => {
@@ -370,11 +410,15 @@ const parseShareCode = (code) => {
   }
 };
 
-const renderParentSummary = (data) => {
-  const container = document.getElementById("parentSummary");
+const renderParentSummary = (
+  data,
+  containerId = "parentSummary",
+  emptyText = "أدخل كودًا صالحًا للعرض."
+) => {
+  const container = document.getElementById(containerId);
   if (!container) return;
   if (!data) {
-    container.innerHTML = "<p>أدخل كودًا صالحًا للعرض.</p>";
+    container.innerHTML = `<p>${emptyText}</p>`;
     return;
   }
   const doneList = Array.isArray(data.goalsDone) ? data.goalsDone : [];
@@ -546,8 +590,15 @@ const initAIForms = () => {
 const initShareSection = () => {
   const generateBtn = document.getElementById("generateShareCode");
   const copyBtn = document.getElementById("copyShareCode");
+  const copyLinkBtn = document.getElementById("copyShareLink");
   generateBtn?.addEventListener("click", generateShareCode);
   copyBtn?.addEventListener("click", copyShareCode);
+  copyLinkBtn?.addEventListener("click", copyShareLink);
+
+  const existingCode = document.getElementById("shareCodeOutput")?.value;
+  if (existingCode) {
+    setShareOutputs(existingCode);
+  }
 };
 
 const initSettings = () => {
@@ -587,8 +638,9 @@ const initSettings = () => {
 
 const initParentPage = () => {
   const parseBtn = document.getElementById("parseShareCode");
+  const input = document.getElementById("parentShareCode");
+  if (!input) return;
   parseBtn?.addEventListener("click", () => {
-    const input = document.getElementById("parentShareCode");
     const code = input.value.trim();
     if (!code) return toast("ألصق كود المشاركة.");
     try {
@@ -601,9 +653,23 @@ const initParentPage = () => {
     }
   });
 
+  const params = new URLSearchParams(window.location.search);
+  const queryCode = params.get("code");
+  if (queryCode && input) {
+    input.value = queryCode;
+    try {
+      renderParentSummary(parseShareCode(queryCode));
+      localStorage.setItem("parent:lastCode", queryCode);
+      return;
+    } catch (error) {
+      toast(error.message);
+      renderParentSummary();
+    }
+  }
+
   const saved = localStorage.getItem("parent:lastCode");
   if (saved) {
-    document.getElementById("parentShareCode").value = saved;
+    input.value = saved;
     try {
       renderParentSummary(parseShareCode(saved));
     } catch (error) {
@@ -647,6 +713,66 @@ const initLanding = () => {
   // No-op for now
 };
 
+const initShareViewerPage = () => {
+  const parseBtn = document.getElementById("publicParseShareCode");
+  const input = document.getElementById("publicShareCode");
+  const copyBtn = document.getElementById("publicCopyLink");
+  const summaryId = "publicSummary";
+  const emptyMessage = "ألصق كودًا صالحًا أو استخدم رابطًا يحتوي على الكود.";
+
+  const applyCode = (code, { updateHistory = true } = {}) => {
+    const linkOutput = document.getElementById("publicLinkOutput");
+    if (!code) {
+      renderParentSummary(undefined, summaryId, emptyMessage);
+      if (linkOutput) linkOutput.value = "";
+      if (updateHistory && typeof history?.replaceState === "function") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("code");
+        history.replaceState({}, "", url.toString());
+      }
+      return;
+    }
+    try {
+      const data = parseShareCode(code);
+      renderParentSummary(data, summaryId);
+      if (linkOutput) {
+        linkOutput.value = buildShareLink(code);
+      }
+      if (updateHistory && typeof history?.replaceState === "function") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("code", code);
+        history.replaceState({}, "", url.toString());
+      }
+    } catch (error) {
+      toast(error.message);
+      renderParentSummary(undefined, summaryId, emptyMessage);
+      if (linkOutput) linkOutput.value = "";
+      if (updateHistory && typeof history?.replaceState === "function") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("code");
+        history.replaceState({}, "", url.toString());
+      }
+    }
+  };
+
+  parseBtn?.addEventListener("click", () => {
+    const value = input?.value.trim();
+    if (!value) return toast("ألصق كود المشاركة.");
+    applyCode(value);
+  });
+
+  copyBtn?.addEventListener("click", copyPublicLink);
+
+  const params = new URLSearchParams(window.location.search);
+  const initialCode = params.get("code");
+  if (initialCode && input) {
+    input.value = initialCode;
+    applyCode(initialCode, { updateHistory: false });
+  } else {
+    renderParentSummary(undefined, summaryId, emptyMessage);
+  }
+};
+
 const initPage = () => {
   initTheme();
   document.querySelectorAll("[data-action='toggle-theme']").forEach((btn) => {
@@ -671,6 +797,9 @@ const initPage = () => {
     case "teacher":
       initTeacherPage();
       initAIForms();
+      break;
+    case "share":
+      initShareViewerPage();
       break;
     default:
       initLanding();

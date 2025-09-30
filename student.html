@@ -165,9 +165,17 @@
       <div class="panel">
         <h2>مشاركة تقدم اليوم</h2>
         <button class="btn" type="button" id="generateShareCode">توليد كود المشاركة</button>
-        <textarea id="shareCodeOutput" rows="4" readonly placeholder="سيظهر الكود هنا"></textarea>
+        <div class="field">
+          <label for="shareCodeOutput">كود المشاركة (Base64)</label>
+          <textarea id="shareCodeOutput" rows="4" readonly placeholder="سيظهر الكود هنا"></textarea>
+        </div>
         <button class="btn ghost" type="button" id="copyShareCode">نسخ الكود</button>
-        <p class="hint">أرسل الكود لوليّ أمرك أو معلمك لعرض إنجازك.</p>
+        <div class="field">
+          <label for="shareLinkOutput">رابط عام قابل للمشاركة</label>
+          <input type="text" id="shareLinkOutput" readonly placeholder="سيظهر الرابط العام هنا" />
+        </div>
+        <button class="btn ghost" type="button" id="copyShareLink">نسخ الرابط</button>
+        <p class="hint">أرسل الكود أو الرابط العام لعرض إنجازك على أي متصفح.</p>
       </div>
     </section>
     <section class="tab-panel" id="tab-settings" role="tabpanel">
