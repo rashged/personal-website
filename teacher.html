@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة المعلّم | حياة أفضل</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="teacher">
+  <header class="top-bar">
+    <div>
+      <h1>لوحة المعلّم</h1>
+      <p>استعرض بيانات طلابك وولّد تحليلات صفية ذكية.</p>
+    </div>
+    <button class="theme-toggle" type="button" data-action="toggle-theme">تبديل الثيم</button>
+  </header>
+  <main class="layout">
+    <section class="panel">
+      <h2>استيراد أكواد المشاركة</h2>
+      <textarea id="teacherShareCodes" rows="6" placeholder="ألصق عدة أكواد، كل كود في سطر مستقل"></textarea>
+      <button class="btn" type="button" id="parseTeacherCodes">عرض البيانات</button>
+      <p class="hint">يمكنك أيضًا تحميل البيانات من قاعدة سحابية في الإصدار القادم.</p>
+    </section>
+    <section class="panel">
+      <h2>لوحة الصف</h2>
+      <div class="table-wrapper">
+        <table id="teacherTable">
+          <thead>
+            <tr>
+              <th>الطالب</th>
+              <th>التاريخ</th>
+              <th>منجز/إجمالي</th>
+              <th>الخطوات</th>
+              <th>الماء</th>
+              <th>النقاط</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="6">لا توجد بيانات بعد.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>تحليلات الذكاء الاصطناعي</h2>
+      <button class="btn" type="button" id="generateTeacherInsights">تشغيل التحليلات</button>
+      <pre class="ai-output" id="teacherInsightsOutput" aria-live="polite"></pre>
+      <p class="hint">يوصى بمراجعة النتائج يدويًا، واستشارة مختص عند الحاجة.</p>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <a href="index.html">العودة للصفحة الرئيسية</a>
+  </footer>
+  <script src="scripts.js" defer></script>
+</body>
+</html>
