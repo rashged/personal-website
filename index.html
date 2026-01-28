@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpendPilot • Smart Budgeting</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="app" data-theme="dark">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo"><i class="fa-solid fa-compass"></i></div>
+          <div>
+            <h1>SpendPilot</h1>
+            <p>Budget with confidence</p>
+          </div>
+        </div>
+        <nav>
+          <button class="nav-item active" data-page="dashboard"><i class="fa-solid fa-chart-pie"></i>Dashboard</button>
+          <button class="nav-item" data-page="purchases"><i class="fa-solid fa-receipt"></i>Purchases</button>
+          <button class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-line"></i>Analytics</button>
+          <button class="nav-item" data-page="categories"><i class="fa-solid fa-tags"></i>Categories</button>
+          <button class="nav-item" data-page="save-more"><i class="fa-solid fa-piggy-bank"></i>Save More</button>
+          <button class="nav-item" data-page="settings"><i class="fa-solid fa-gear"></i>Settings</button>
+          <button class="nav-item" data-page="wallet"><i class="fa-solid fa-wallet"></i>Wallet Connect</button>
+        </nav>
+        <div class="sidebar-footer">
+          <button id="themeToggle" class="ghost">
+            <i class="fa-solid fa-moon"></i>
+            <span>Dark mode</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h2 id="pageTitle">Dashboard</h2>
+            <p id="pageSubtitle">Monitor your budget runway.</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost" id="seedData">Seed demo data</button>
+            <button class="primary" id="quickAdd"><i class="fa-solid fa-plus"></i> Quick add</button>
+          </div>
+        </header>
+
+        <section id="onboarding" class="card hidden">
+          <div class="card-header">
+            <div>
+              <h3>Welcome to SpendPilot</h3>
+              <p>Set up your monthly budget to start tracking spending.</p>
+            </div>
+            <span class="badge">Setup</span>
+          </div>
+          <form id="setupForm" class="grid">
+            <label>
+              Monthly income / budget
+              <input type="number" name="income" min="0" required placeholder="15000" />
+            </label>
+            <label>
+              Currency
+              <select name="currency">
+                <option value="AED">AED</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </label>
+            <label>
+              Start day of month
+              <input type="number" name="startDay" min="1" max="28" value="1" required />
+            </label>
+            <button class="primary" type="submit">Save settings</button>
+          </form>
+        </section>
+
+        <section id="dashboard" class="page active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <p>Budget remaining</p>
+              <h3 id="budgetRemaining">AED 0</h3>
+              <span id="budgetStatus" class="pill neutral">On track</span>
+            </div>
+            <div class="stat-card">
+              <p>Total spent</p>
+              <h3 id="totalSpent">AED 0</h3>
+              <span class="pill">This month</span>
+            </div>
+            <div class="stat-card">
+              <p>Average spend / day</p>
+              <h3 id="avgSpend">AED 0</h3>
+              <span class="pill">Daily pace</span>
+            </div>
+            <div class="stat-card">
+              <p>Top category</p>
+              <h3 id="topCategory">-</h3>
+              <span class="pill">Highest spend</span>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Recent purchases</h3>
+                  <p>Latest transactions first.</p>
+                </div>
+                <button class="ghost" id="addPurchaseBtn"><i class="fa-solid fa-plus"></i> Add purchase</button>
+              </div>
+              <div id="recentPurchases" class="list"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Budget alerts</h3>
+                  <p>Smart warnings based on your limits.</p>
+                </div>
+              </div>
+              <div id="alerts" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="purchases" class="page">
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Add purchase</h3>
+                  <p>Track every spend to stay in control.</p>
+                </div>
+              </div>
+              <form id="purchaseForm" class="grid">
+                <label>
+                  Amount
+                  <input type="number" name="amount" min="0" step="0.01" required />
+                </label>
+                <label>
+                  Category
+                  <select name="category" required></select>
+                </label>
+                <label>
+                  Date
+                  <input type="date" name="date" />
+                </label>
+                <label>
+                  Payment method
+                  <select name="method">
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="apple pay">Apple Pay</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label>
+                  Merchant
+                  <input type="text" name="merchant" placeholder="Amazon" />
+                </label>
+                <label>
+                  Note
+                  <input type="text" name="note" placeholder="Optional note" />
+                </label>
+                <button class="primary" type="submit">Save purchase</button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Purchases</h3>
+                  <p>Edit or delete entries anytime.</p>
+                </div>
+              </div>
+              <div id="purchaseList" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="analytics" class="page">
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Spending by category</h3>
+                  <p>Where your money goes this month.</p>
+                </div>
+              </div>
+              <canvas id="categoryChart" height="220"></canvas>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Daily spending trend</h3>
+                  <p>Keep an eye on daily momentum.</p>
+                </div>
+              </div>
+              <canvas id="dailyChart" height="220"></canvas>
+            </div>
+          </div>
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>This month vs last month</h3>
+                  <p>Track progress over time.</p>
+                </div>
+              </div>
+              <canvas id="monthCompareChart" height="220"></canvas>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Insights</h3>
+                  <p>Highlights tailored to your activity.</p>
+                </div>
+              </div>
+              <div id="insights" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="categories" class="page">
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Manage categories</h3>
+                  <p>Organize your spend with custom labels.</p>
+                </div>
+                <span class="badge">Pro feature: Advanced rules</span>
+              </div>
+              <form id="categoryForm" class="grid">
+                <label>
+                  Category name
+                  <input type="text" name="name" required />
+                </label>
+                <label>
+                  Icon
+                  <select name="icon">
+                    <option value="fa-bag-shopping">Shopping</option>
+                    <option value="fa-car">Transportation</option>
+                    <option value="fa-utensils">Food & Drinks</option>
+                    <option value="fa-file-invoice-dollar">Bills</option>
+                    <option value="fa-film">Entertainment</option>
+                    <option value="fa-graduation-cap">Education</option>
+                    <option value="fa-heart-pulse">Health</option>
+                    <option value="fa-repeat">Subscriptions</option>
+                    <option value="fa-gift">Gifts</option>
+                    <option value="fa-layer-group">Other</option>
+                  </select>
+                </label>
+                <label>
+                  Monthly limit (optional)
+                  <input type="number" name="limit" min="0" step="0.01" />
+                </label>
+                <button class="primary" type="submit">Save category</button>
+              </form>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Your categories</h3>
+                  <p>Tap to edit or remove.</p>
+                </div>
+              </div>
+              <div id="categoryList" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="save-more" class="page">
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Smart suggestions</h3>
+                  <p>Improve your savings automatically.</p>
+                </div>
+              </div>
+              <div id="smartSuggestions" class="list"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Savings goals</h3>
+                  <p>Plan for travel, gadgets, or rainy days.</p>
+                </div>
+              </div>
+              <form id="goalForm" class="grid">
+                <label>
+                  Goal name
+                  <input type="text" name="name" required />
+                </label>
+                <label>
+                  Target amount
+                  <input type="number" name="target" min="0" step="0.01" required />
+                </label>
+                <label>
+                  Deadline
+                  <input type="date" name="deadline" required />
+                </label>
+                <button class="primary" type="submit">Add goal</button>
+              </form>
+              <div id="goalList" class="list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="settings" class="page">
+          <div class="grid two">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Profile & budget</h3>
+                  <p>Update settings any time.</p>
+                </div>
+              </div>
+              <form id="settingsForm" class="grid">
+                <label>
+                  Monthly income / budget
+                  <input type="number" name="income" min="0" required />
+                </label>
+                <label>
+                  Currency
+                  <select name="currency">
+                    <option value="AED">AED</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </label>
+                <label>
+                  Start day of month
+                  <input type="number" name="startDay" min="1" max="28" required />
+                </label>
+                <label>
+                  Budget alert threshold
+                  <input type="number" name="alertThreshold" min="50" max="100" required />
+                </label>
+                <button class="primary" type="submit">Save changes</button>
+              </form>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3>Security</h3>
+                  <p>Simple email/password login (local demo).</p>
+                </div>
+              </div>
+              <form id="authForm" class="grid">
+                <label>
+                  Email
+                  <input type="email" name="email" required placeholder="you@example.com" />
+                </label>
+                <label>
+                  Password
+                  <input type="password" name="password" required />
+                </label>
+                <button class="primary" type="submit">Save credentials</button>
+              </form>
+              <p class="muted">This demo stores credentials locally for testing only.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="wallet" class="page">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Wallet Connect (Coming Soon)</h3>
+                <p>Auto-import transactions from banks and wallets.</p>
+              </div>
+              <span class="badge">Coming soon</span>
+            </div>
+            <div class="wallet-grid">
+              <div class="wallet-card">
+                <i class="fa-brands fa-cc-visa"></i>
+                <h4>Visa</h4>
+                <p>Connect cards securely.</p>
+              </div>
+              <div class="wallet-card">
+                <i class="fa-brands fa-cc-mastercard"></i>
+                <h4>Mastercard</h4>
+                <p>Sync transactions in real time.</p>
+              </div>
+              <div class="wallet-card">
+                <i class="fa-brands fa-apple"></i>
+                <h4>Apple Pay</h4>
+                <p>Import wallet activity.</p>
+              </div>
+              <div class="wallet-card">
+                <i class="fa-solid fa-building-columns"></i>
+                <h4>Local Banks</h4>
+                <p>UAE + global banks.</p>
+              </div>
+            </div>
+            <div class="toggle">
+              <label class="switch">
+                <input type="checkbox" disabled />
+                <span class="slider"></span>
+              </label>
+              <div>
+                <h4>Enable auto-import</h4>
+                <p class="muted">Coming soon — stay tuned.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3>Export data</h3>
+              <p>Download your monthly spend as CSV.</p>
+            </div>
+            <button class="ghost" id="exportCsv"><i class="fa-solid fa-download"></i> Export CSV</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <h3 id="modalTitle">Edit entry</h3>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+          <button class="ghost" id="modalCancel">Cancel</button>
+          <button class="primary" id="modalConfirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="scripts.js"></script>
+  </body>
+</html>
