@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glass Slope — Apple Inspired</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="gameCanvas" aria-label="3D slope game canvas"></canvas>
+
+    <main class="hud-wrap">
+      <section class="glass panel title-panel">
+        <p class="eyebrow">Arcade</p>
+        <h1>Glass Slope</h1>
+        <p class="sub">Apple-inspired colors + liquid glass interface.</p>
+      </section>
+
+      <section class="glass panel score-panel">
+        <div>
+          <p class="label">Score</p>
+          <p id="score" class="value">0</p>
+        </div>
+        <div>
+          <p class="label">Best</p>
+          <p id="best" class="value">0</p>
+        </div>
+        <div>
+          <p class="label">Speed</p>
+          <p id="speed" class="value">1.0x</p>
+        </div>
+      </section>
+
+      <section id="overlay" class="glass panel overlay show" role="dialog" aria-live="polite">
+        <h2 id="overlayTitle">Ready to Roll?</h2>
+        <p id="overlayText">Use A/D, ←/→, or swipe to dodge holes and blocks.</p>
+        <button id="startBtn" class="start-btn">Start Game</button>
+      </section>
+    </main>
+
+    <script src="scripts.js"></script>
+  </body>
+</html>
