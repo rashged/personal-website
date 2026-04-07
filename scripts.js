@@ -510,6 +510,26 @@ const renderGoals = () => {
 };
 
 const renderCharts = () => {
+  if (typeof Chart === 'undefined') {
+    const fallbackMessage = 'Charts unavailable offline. Connect to load analytics visualizations.';
+    document.querySelectorAll('#analytics canvas').forEach((canvas) => {
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      canvas.classList.add('hidden');
+      let notice = parent.querySelector('.chart-fallback');
+      if (!notice) {
+        notice = document.createElement('div');
+        notice.className = 'muted chart-fallback';
+        parent.appendChild(notice);
+      }
+      notice.textContent = fallbackMessage;
+    });
+    return;
+  }
+
+  document.querySelectorAll('.chart-fallback').forEach((notice) => notice.remove());
+  document.querySelectorAll('#analytics canvas').forEach((canvas) => canvas.classList.remove('hidden'));
+
   const currentPurchases = state.purchases.filter(withinCurrentMonth);
   const byCategory = state.categories.map((category) => {
     const total = currentPurchases
